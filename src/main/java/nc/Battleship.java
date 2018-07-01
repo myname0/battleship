@@ -22,8 +22,5 @@ public class Battleship extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
-
-        GameController controller = new GameController();
-//        controller.start();
     }
 }

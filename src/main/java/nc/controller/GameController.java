@@ -1,8 +1,6 @@
 package nc.controller;
 
 import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import nc.entity.FieldCell;
@@ -11,17 +9,20 @@ import nc.handler.AddShipHandler;
 import nc.handler.FireHandler;
 
 public class GameController {
-    public FieldCell[][] user;
-    FieldCell[][] opponent;
-    Stage mainStage;
-    GridPane opponentPane;
-    GridPane gamerPane;
-
-    Integer userShips = 0, opponentShips = 0;
-
+    private FieldCell[][] user;
+    private FieldCell[][] opponent;
+    private Stage mainStage;
+    private GridPane opponentPane;
+    private GridPane gamerPane;
+    private int[] addShipCount = new int[]{4, 3, 2, 1};
     private boolean isVertical;
-    Button orientation;
-    AddShipHandler addShipHandler;
+    private AddShipHandler addShipHandler;
+
+    GameController(GridPane gamerPane, GridPane opponentPane) {
+        this.gamerPane = gamerPane;
+        this.opponentPane = opponentPane;
+        init();
+    }
 
     public boolean isVertical() {
         return isVertical;
@@ -31,24 +32,31 @@ public class GameController {
         isVertical = vertical;
     }
 
-    public void start() {
-        createFields();
-        userShips = 0;
-        opponentShips = 0;
+    public FieldCell[][] getUser() {
+        return user;
+    }
 
+    public int[] getAddShipCount() {
+        return addShipCount;
+    }
+
+    public AddShipHandler getAddShipHandler() {
+        return addShipHandler;
+    }
+
+    public void start() {
         FireHandler<ActionEvent> fireHandler = new FireHandler<>(user, opponent, mainStage, this);
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-
                 opponent[i][j].setOnAction(fireHandler);
             }
         }
     }
 
-    private void createFields() {
+    private void init() {
         user = new FieldCell[10][10];
         opponent = new FieldCell[10][10];
-        addShipHandler = new AddShipHandler<>(this);
+        addShipHandler = new AddShipHandler(this);
 
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
@@ -56,28 +64,24 @@ public class GameController {
                 user[i][j].setOnAction(addShipHandler);
                 opponent[i][j] = new FieldCell(i, j);
                 gamerPane.add(user[i][j], i, j);
-                gamerPane.add(opponent[i][j], i, j);
+                opponentPane.add(opponent[i][j], i, j);
             }
         }
     }
 
-    private void clearUserField(){
+    private void clearUserField() {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 user[i][j].setShowStatus(Status.CLEAR);
+                user[i][j].setTrueStatus(Status.CLEAR);
             }
         }
-        addShipHandler.setLength(0);
-        addShipHandler.setCount(new Label("0"));
-        for (int i = 0; i < 4; i++) {
-            addShipCount[i].setText(Integer.toString(4 - i));
-        }
-        userShips = 0;
     }
 
     public void fillFieldAutomatically() {
         clearUserField();
-        boolean flag;
+        boolean isPossibleToSet;
+
         for (int i = 4; i >= 2; i--) {
             for (int j = 0; j < 4 - i + 1; j++) {
                 if (i == 2 && j == 2)
@@ -88,34 +92,34 @@ public class GameController {
                     int pos = (int) (Math.random() * (11.0 - i));
                     int x = pos * orientation + 9 * side * Math.abs(orientation - 1);
                     int y = pos * Math.abs(orientation - 1) + 9 * side * orientation;
-                    flag = trySet(x, y, orientation, i);
-                    if (!flag)
+                    isPossibleToSet = trySet(x, y, orientation, i);
+                    if (!isPossibleToSet)
                         continue;
                     place(x, y, orientation, i);
-                } while (!flag);
+                } while (!isPossibleToSet);
             }
         }
+
         do {
             int orientation = (int) (Math.random() * 2.0);
             int x = (int) (Math.random() * 8.0) + 1;
             int y = (int) (Math.random() * 8.0) + 1;
-            flag = trySet(x, y, orientation, 2);
-            if (!flag)
+            isPossibleToSet = trySet(x, y, orientation, 2);
+            if (!isPossibleToSet)
                 continue;
             place(x, y, orientation, 2);
-        } while (!flag);
+        } while (!isPossibleToSet);
 
         for (int i = 0; i < 4; i++) {
             do {
                 int x = (int) (Math.random() * 9.0);
                 int y = (int) (Math.random() * 9.0);
-                flag = trySet(x, y, 0, 2);
-                if (!flag)
+                isPossibleToSet = trySet(x, y, 0, 2);
+                if (!isPossibleToSet)
                     continue;
                 place(x, y, 0, 1);
-            } while (!flag);
+            } while (!isPossibleToSet);
         }
-        opponentShips = 10;
     }
 
     private void place(int x, int y, int orientation, int length) {
@@ -123,61 +127,54 @@ public class GameController {
             case 0:
                 for (int i = 0; i < length; i++) {
                     user[x][y + i].setTrueStatus(Status.UNBROKEN);
+                    user[x][y + i].setShowStatus(Status.UNBROKEN);
                 }
                 break;
             case 1:
                 for (int i = 0; i < length; i++) {
                     user[x + i][y].setTrueStatus(Status.UNBROKEN);
+                    user[x + i][y].setShowStatus(Status.UNBROKEN);
                 }
                 break;
         }
     }
 
-    private Boolean trySet(Integer x, Integer y, Integer orientation, Integer length) {
+    private boolean trySet(int x, int y, int orientation, int length) {
         switch (orientation) {
             case 0:
                 if (y + length > 10)
-                    return Boolean.FALSE;
+                    return false;
                 for (int i = 0; i < length; i++) {
                     if (!checkField(x, y + i))
-                        return Boolean.FALSE;
+                        return false;
                 }
                 break;
             case 1:
                 if (x + length > 10)
-                    return Boolean.FALSE;
+                    return false;
                 for (int i = 0; i < length; i++) {
                     if (!checkField(x + i, y)) {
-                        return Boolean.FALSE;
+                        return false;
                     }
                 }
                 break;
         }
-        return Boolean.TRUE;
+        return true;
     }
 
-    private Boolean checkField(int x, int y) {
-        Boolean result = Boolean.TRUE;
+    private boolean checkField(int x, int y) {
+        boolean result = true;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if ((i != 0 || j != 0) && isInField(x + i, y + j)) {
-                    result = !opponent[x + i][y + j].getTrueStatus().equals(Status.UNBROKEN) && result;
+                    result = !user[x + i][y + j].getTrueStatus().equals(Status.UNBROKEN) && result;
                 }
             }
         }
-
         return result;
     }
 
     private boolean isInField(int x, int y) {
         return (x < 10 && x >= 0 && y < 10 && y >= 0);
-    }
-
-    public void increaseUserShips() {
-        userShips++;
-    }
-
-    public Button getOrientation() {
-        return orientation;
     }
 }

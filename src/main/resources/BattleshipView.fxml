@@ -11,10 +11,10 @@
    <children>
       <AnchorPane layoutX="-24.0" prefHeight="466.0" prefWidth="766.0">
          <children>
-            <Button fx:id="1" layoutX="57.0" layoutY="354.0" mnemonicParsing="false" onMouseClicked="#HandleAddShip" text="1 Cell Ship" />
-            <Button fx:id="2" layoutX="57.0" layoutY="388.0" mnemonicParsing="false" onMouseClicked="#HandleAddShip" text="2 Cell Ship" />
-            <Button fx:id="3" layoutX="149.0" layoutY="354.0" mnemonicParsing="false" onMouseClicked="#HandleAddShip" text="3 Cell Ship" />
-            <Button fx:id="4" layoutX="137.0" layoutY="388.0" mnemonicParsing="false" onMouseClicked="#HandleAddShip" text="4 Cell Ship" />
+            <Button fx:id="OneCellShip" layoutX="57.0" layoutY="354.0" mnemonicParsing="false" onAction="#HandleAddShip" text="1 Cell Ship" />
+            <Button fx:id="2" layoutX="57.0" layoutY="388.0" mnemonicParsing="false" onAction="#HandleAddShip" text="2 Cell Ship" />
+            <Button fx:id="3" layoutX="149.0" layoutY="354.0" mnemonicParsing="false" onAction="#HandleAddShip" text="3 Cell Ship" />
+            <Button fx:id="4" layoutX="137.0" layoutY="388.0" mnemonicParsing="false" onAction="#HandleAddShip" text="4 Cell Ship" />
             <Button fx:id="reverse" layoutX="100.0" layoutY="420.0" mnemonicParsing="false" onMouseClicked="#HandleReverse" text="Reverse" />
             <Button fx:id="generateShips" layoutX="229.0" layoutY="354.0" mnemonicParsing="false" onMouseClicked="#HandleAutoGenerate" text="Generate Ships" />
             <Button fx:id="start" layoutX="590.0" layoutY="420.0" mnemonicParsing="false" onMouseClicked="#HandleStartButton" text="Start" />
